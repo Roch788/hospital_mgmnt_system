@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: medisync-backend
+    runtime: node
+    rootDir: backend
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ALLOCATION_DECISION_WINDOW_SECONDS
+        value: 60
+      - key: ALLOCATION_RESERVATION_TTL_SECONDS
+        value: 90
+      - key: ALLOCATION_RADIUS_STEPS_KM
+        value: 5,10,20,35
+      - key: CITY_DEFAULT
+        value: Indore
+      - key: GLOBAL_OBSERVER_HOSPITAL_CODES
+        value: IND-AITR-01
+      - key: GEMINI_API_KEY
+        sync: false
