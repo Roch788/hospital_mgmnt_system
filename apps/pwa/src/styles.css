@@ -380,6 +380,14 @@ select {
   line-height: 1.45;
 }
 
+.guidance-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #204252;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 740px) {
   .page {
     padding: 0.8rem 0.78rem 1.4rem;

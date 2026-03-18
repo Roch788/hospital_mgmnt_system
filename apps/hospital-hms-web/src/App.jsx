@@ -68,6 +68,14 @@ async function authGetOrDefault(path, accessToken, fallbackPayload) {
   }
 }
 
+function isPendingActionable(status) {
+  return status === "pending_hospital_response";
+}
+
+function isUnresolvedStatus(status) {
+  return ["created", "pending_hospital_response", "rejected_retrying"].includes(status);
+}
+
 const menuGroups = [
   { title: "HMS Overview", items: ["Operations Overview", "Emergency Board", "Department Snapshot"] },
   { title: "Doctors", items: ["All Doctors", "Add Doctor", "Shift Management"] },
@@ -274,14 +282,16 @@ function EmergencyBoardPage({ pendingRequests, activeRequests, onRespond, onLoad
       <div className="cards">
         {pendingRequests.slice(0, 8).map((item) => {
           const busyAction = actionInFlight[item.id];
+          const actionable = isPendingActionable(item.status);
           return (
           <div key={item.id} className="case-card pending">
-            <p>{item.patientName || item.callerName || "Unknown"} | {item.emergencyType || "general"} | waiting {formatAgeMinutes(item.createdAt)}</p>
+            <p>{item.patientName || item.callerName || "Unknown"} | {item.emergencyType || "general"} | {item.status} | waiting {formatAgeMinutes(item.createdAt)}</p>
             <div className="actions-row left">
-              <button className="primary" disabled={Boolean(busyAction)} onClick={() => onRespond(item.id, "accept")}>{busyAction === "accept" ? "Accepting..." : "Accept"}</button>
-              <button className="ghost" disabled={Boolean(busyAction)} onClick={() => onRespond(item.id, "reject")}>{busyAction === "reject" ? "Rejecting..." : "Reject"}</button>
+              <button className="primary" disabled={Boolean(busyAction) || !actionable} onClick={() => onRespond(item.id, "accept")}>{busyAction === "accept" ? "Accepting..." : "Accept"}</button>
+              <button className="ghost" disabled={Boolean(busyAction) || !actionable} onClick={() => onRespond(item.id, "reject")}>{busyAction === "reject" ? "Rejecting..." : "Reject"}</button>
               <button className="ghost" disabled={Boolean(busyAction)} onClick={() => onLoadMedia(item.id)}>View Case Media</button>
             </div>
+            {!actionable ? <span className="pill">Waiting for allocation offer</span> : null}
             {(mediaByRequest[item.id] || []).length > 0 ? (
               <ul className="status-list" style={{ marginTop: "0.6rem" }}>
                 {(mediaByRequest[item.id] || []).slice(0, 2).map((media) => (
@@ -1597,15 +1607,15 @@ export default function App() {
       throw new Error("Missing access token");
     }
 
-    const [pendingPayload, acceptedPayload] = await Promise.all([
-      authGet("/hospital/requests?status=pending_hospital_response&limit=60&mode=fast", token),
-      authGet("/hospital/requests?status=accepted&limit=60&mode=fast", token)
-    ]);
+    const allPayload = await authGet("/hospital/requests?limit=80&mode=fast", token);
+    const allItems = allPayload?.items || [];
 
     pruneResponseLocks();
 
-    const incomingPending = (pendingPayload?.items || []).filter((item) => getResponseLockStatus(item.id) !== "accepted");
-    const incomingAccepted = acceptedPayload?.items || [];
+    const incomingPending = allItems
+      .filter((item) => isUnresolvedStatus(item.status))
+      .filter((item) => getResponseLockStatus(item.id) !== "accepted");
+    const incomingAccepted = allItems.filter((item) => item.status === "accepted");
     const acceptedIds = new Set(incomingAccepted.map((item) => item.id));
 
     for (const [requestId, lock] of responseLockRef.current.entries()) {

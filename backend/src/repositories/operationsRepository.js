@@ -922,6 +922,48 @@ export async function hasEmergencyWardCapacity({ hospitalId, emergencyType }) {
   return wardPool.some((room) => !occupied.has(room));
 }
 
+export async function listEmergencyWardCapacityByHospitalIds({ hospitalIds, emergencyType }) {
+  const ids = [...new Set((hospitalIds || []).filter(Boolean))];
+  if (ids.length === 0) {
+    return new Map();
+  }
+
+  const wardPriority = resolveWardPriorityFromEmergency({ emergencyType });
+  const wardPool = WARD_CATALOG[wardPriority] || WARD_CATALOG.medium;
+
+  const { data, error } = await supabaseAdmin
+    .from("room_allotments")
+    .select("hospital_id,room_number,status")
+    .in("hospital_id", ids)
+    .neq("status", "discharged");
+
+  if (error) {
+    throw new HttpError(500, error.message, "DB_ROOM_BULK_OCCUPANCY_LOOKUP_FAILED");
+  }
+
+  const occupiedByHospital = new Map(ids.map((id) => [id, new Set()]));
+  for (const row of data || []) {
+    if (!row?.hospital_id || !row?.room_number) {
+      continue;
+    }
+    if (!occupiedByHospital.has(row.hospital_id)) {
+      occupiedByHospital.set(row.hospital_id, new Set());
+    }
+    occupiedByHospital.get(row.hospital_id).add(row.room_number);
+  }
+
+  const capacityMap = new Map();
+  for (const hospitalId of ids) {
+    const occupied = occupiedByHospital.get(hospitalId) || new Set();
+    capacityMap.set(
+      hospitalId,
+      wardPool.some((room) => !occupied.has(room))
+    );
+  }
+
+  return capacityMap;
+}
+
 export async function dischargeRoomAllotment({ hospitalId, role, roomAllotmentId, billAmount, notes }) {
   const scope = await resolveHospitalScope(hospitalId, role);
 

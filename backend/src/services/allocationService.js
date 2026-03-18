@@ -6,7 +6,7 @@ import {
   releaseResources,
   reserveResources
 } from "../repositories/hospitalRepository.js";
-import { hasEmergencyWardCapacity } from "../repositories/operationsRepository.js";
+import { listEmergencyWardCapacityByHospitalIds } from "../repositories/operationsRepository.js";
 import { distanceKm } from "./distanceService.js";
 
 const activeDecisionTimers = new Map();
@@ -53,18 +53,12 @@ export async function findBestHospitalCandidates({ city, patientLocation, reques
 
   let candidates = scored;
   if (needsBed) {
-    const withCapacity = await Promise.all(
-      scored.map(async (candidate) => {
-        const hasCapacity = await hasEmergencyWardCapacity({
-          hospitalId: candidate.hospital.id,
-          emergencyType
-        });
+    const capacityMap = await listEmergencyWardCapacityByHospitalIds({
+      hospitalIds: scored.map((candidate) => candidate.hospital.id),
+      emergencyType
+    });
 
-        return hasCapacity ? candidate : null;
-      })
-    );
-
-    candidates = withCapacity.filter(Boolean);
+    candidates = scored.filter((candidate) => Boolean(capacityMap.get(candidate.hospital.id)));
   }
 
   return candidates

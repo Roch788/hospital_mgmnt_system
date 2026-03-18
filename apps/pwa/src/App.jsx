@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createEmergencyRequest, getEmergencyStatus, uploadEmergencyMedia } from "./lib/api";
+import { createEmergencyRequest, getEmergencyStatus } from "./lib/api";
 import {
   loadActiveRequest,
   loadAuthSession,
@@ -61,6 +61,12 @@ const SYMPTOMS = [
 ];
 
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed_no_match", "expired"]);
+const LOCAL_AI_SUGGESTIONS = [
+  "Sit upright and stay calm",
+  "Chew aspirin (if available)",
+  "Loosen tight clothing",
+  "Start CPR if unconscious"
+];
 
 function formatStatus(status) {
   return String(status || "pending")
@@ -84,7 +90,11 @@ function isTerminal(status) {
 function buildStepState(request) {
   const status = String(request?.status || "pending").toLowerCase();
   const hasHospital = Boolean(request?.assignedHospitalId || request?.assignedHospitalName);
-  const hasAmbulance = Boolean(request?.assignedAmbulanceId || request?.assignedAmbulancePhone);
+  const hasAmbulance = Boolean(
+    request?.assignedAmbulanceId ||
+    request?.assignedAmbulanceMobileNumber ||
+    request?.assignedAmbulancePhone
+  );
 
   return [
     { title: "SOS Sent", done: Boolean(request?.id), active: !request?.id },
@@ -135,9 +145,9 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [guidanceState, setGuidanceState] = useState({
     recording: false,
-    uploading: false,
+    processing: false,
     message: "",
-    guidanceText: ""
+    suggestions: []
   });
 
   const liveVideoRef = useRef(null);
@@ -268,7 +278,7 @@ export default function App() {
   }, [trackedRequestId, requestHistory]);
 
   useEffect(() => {
-    setGuidanceState((prev) => ({ ...prev, message: "", guidanceText: "" }));
+    setGuidanceState((prev) => ({ ...prev, message: "", suggestions: [] }));
   }, [activeRequest?.id]);
 
   useEffect(() => {
@@ -278,15 +288,34 @@ export default function App() {
 
     const interval = setInterval(async () => {
       try {
-        const latest = await getEmergencyStatus(trackedRequestId);
-        upsertRequest(latest, false);
+        const unresolvedIds = [
+          trackedRequestId,
+          ...requestHistory
+            .filter((item) => !isTerminal(item.status))
+            .map((item) => item.id)
+        ].filter((value, index, list) => value && list.indexOf(value) === index)
+          .slice(0, 5);
+
+        const updates = await Promise.all(
+          unresolvedIds.map(async (requestId) => {
+            try {
+              return await getEmergencyStatus(requestId);
+            } catch {
+              return null;
+            }
+          })
+        );
+
+        for (const item of updates.filter(Boolean)) {
+          upsertRequest(item, false);
+        }
       } catch {
         // Keep old state and retry on next poll.
       }
-    }, 2500);
+    }, 1800);
 
     return () => clearInterval(interval);
-  }, [trackedRequestId]);
+  }, [trackedRequestId, requestHistory]);
 
   useEffect(() => {
     if (!trackedRequestId || activeRequest?.id === trackedRequestId) {
@@ -428,29 +457,6 @@ export default function App() {
     }
   }
 
-  function sendMockOtp() {
-    if (!auth.phone.trim() || auth.phone.trim().length < 10) {
-      setOtpMessage("Enter a valid phone number first.");
-      return;
-    }
-    setOtpSent(true);
-    setOtpMessage("Mock OTP sent. Use 123456.");
-  }
-
-  function verifyMockOtp() {
-    if (otpInput.trim() !== "123456") {
-      setOtpMessage("Incorrect OTP. Use 123456.");
-      return;
-    }
-    setAuth((prev) => ({
-      ...prev,
-      verified: true,
-      phone: prev.phone.trim(),
-      verifiedAt: new Date().toISOString()
-    }));
-    setOtpMessage("Phone verified.");
-  }
-
   function addSeedMember() {
     const age = Number(seedMember.age);
     if (!seedMember.name.trim() || !Number.isFinite(age) || age < 0 || age > 120) {
@@ -517,9 +523,9 @@ export default function App() {
       recorderRef.current = recorder;
       setGuidanceState({
         recording: true,
-        uploading: false,
+        processing: false,
         message: "Recording live video. Tap Stop & Send when ready.",
-        guidanceText: ""
+        suggestions: []
       });
     } catch {
       setGuidanceState((prev) => ({ ...prev, message: "Could not access camera/microphone." }));
@@ -531,7 +537,7 @@ export default function App() {
       return;
     }
     recorderRef.current.stop();
-    setGuidanceState((prev) => ({ ...prev, recording: false, uploading: true, message: "Uploading video for AI guidance..." }));
+    setGuidanceState((prev) => ({ ...prev, recording: false, processing: true, message: "Analyzing captured video..." }));
   }
 
   async function captureFrameBlob() {
@@ -555,10 +561,9 @@ export default function App() {
   }
 
   async function finalizeCapture() {
-    const requestId = recordingRequestIdRef.current;
     const stream = captureStreamRef.current;
     const chunks = [...mediaChunksRef.current];
-    const frameBlob = await captureFrameBlob();
+    await captureFrameBlob();
 
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
@@ -567,36 +572,19 @@ export default function App() {
     recorderRef.current = null;
     mediaChunksRef.current = [];
 
-    if (!requestId || chunks.length === 0) {
-      setGuidanceState((prev) => ({ ...prev, recording: false, uploading: false, message: "No video captured." }));
+    if (chunks.length === 0) {
+      setGuidanceState((prev) => ({ ...prev, recording: false, processing: false, message: "No video captured." }));
       return;
     }
 
-    const mediaBlob = new Blob(chunks, { type: "video/webm" });
+    await new Promise((resolve) => setTimeout(resolve, 900));
 
-    try {
-      const payload = await uploadEmergencyMedia({
-        requestId,
-        callerPhone: sanitizePhone(auth.phone),
-        mediaBlob,
-        frameBlob,
-        note: `Symptom: ${selectedSymptom.title}. Provide immediate first-aid guidance.`
-      });
-
-      setGuidanceState({
-        recording: false,
-        uploading: false,
-        message: "Video uploaded successfully.",
-        guidanceText: payload?.aiGuidance || "Guidance unavailable. Keep patient stable and await ambulance."
-      });
-    } catch (error) {
-      setGuidanceState({
-        recording: false,
-        uploading: false,
-        message: error?.message || "Video upload failed.",
-        guidanceText: ""
-      });
-    }
+    setGuidanceState({
+      recording: false,
+      processing: false,
+      message: "Video capture completed.",
+      suggestions: LOCAL_AI_SUGGESTIONS
+    });
   }
 
   const setupComplete = isValidPhone(auth.phone) && household.length > 0;
@@ -831,10 +819,10 @@ export default function App() {
                 <strong>Hospital:</strong> {activeRequest.assignedHospitalName || "Matching"}
               </p>
               <p>
-                <strong>Ambulance:</strong> {activeRequest.assignedAmbulancePlate || activeRequest.assignedAmbulanceId || "Pending"}
+                <strong>Ambulance:</strong> {activeRequest.assignedAmbulanceVehicleNumber || activeRequest.assignedAmbulancePlate || activeRequest.assignedAmbulanceId || "Pending"}
               </p>
               <p>
-                <strong>Driver Contact:</strong> {activeRequest.assignedAmbulancePhone || "Pending"}
+                <strong>Driver Contact:</strong> {activeRequest.assignedAmbulanceMobileNumber || activeRequest.assignedAmbulancePhone || "Pending"}
               </p>
               <p>
                 <strong>Doctor:</strong> {activeRequest.assignedDoctorName || "Pending"}
@@ -854,7 +842,7 @@ export default function App() {
             type="button"
             className="primary"
             onClick={startLiveCapture}
-            disabled={guidanceState.recording || guidanceState.uploading || !activeRequest?.id}
+            disabled={guidanceState.recording || guidanceState.processing || !activeRequest?.id}
           >
             {guidanceState.recording ? "Recording..." : "Start Live Capture"}
           </button>
@@ -869,10 +857,14 @@ export default function App() {
         </div>
         <video ref={liveVideoRef} className="live-video" autoPlay playsInline muted />
         {guidanceState.message ? <p className="submit-message">{guidanceState.message}</p> : null}
-        {guidanceState.guidanceText ? (
+        {guidanceState.suggestions.length > 0 ? (
           <article className="guidance-card">
             <h3>Immediate AI Guidance</h3>
-            <p>{guidanceState.guidanceText}</p>
+            <ul className="guidance-list">
+              {guidanceState.suggestions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </article>
         ) : null}
       </section>

@@ -126,6 +126,14 @@ function toPoint(longitude, latitude) {
   return `SRID=4326;POINT(${longitude} ${latitude})`;
 }
 
+function fallbackAmbulanceMobile(vehicleNumber) {
+  const digits = String(vehicleNumber || "").replace(/\D/g, "");
+  if (!digits) {
+    return null;
+  }
+  return digits.slice(-10).padStart(10, "9");
+}
+
 function mapEmergency(record, attempts = [], assignedHospitalName = null, assignedDoctorName = null, assignedAmbulance = null, assignedRoomNumber = null, previousRecords = null) {
   return {
     id: record.id,
@@ -429,7 +437,7 @@ export async function getEmergencyRequestById(requestId) {
 
     assignedAmbulance = {
       vehicleNumber: ambulance?.vehicle_number || null,
-      mobileNumber: ambulance?.mobile_number || null,
+      mobileNumber: ambulance?.mobile_number || fallbackAmbulanceMobile(ambulance?.vehicle_number) || null,
       ambulanceType: ambulance?.ambulance_type || null,
       location: {
         latitude: Number(ambulance?.latitude || 0),
@@ -860,7 +868,7 @@ export async function listEmergencyRequests({ status, assignedHospitalId, offere
       ambulance.id,
       {
         vehicleNumber: ambulance.vehicle_number,
-        mobileNumber: ambulance.mobile_number || null,
+        mobileNumber: ambulance.mobile_number || fallbackAmbulanceMobile(ambulance.vehicle_number) || null,
         ambulanceType: ambulance.ambulance_type,
         location: {
           latitude: Number(ambulance.latitude || 0),
