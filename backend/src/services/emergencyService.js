@@ -25,6 +25,7 @@ import { derivePriority, enforcePriorityFloor } from "./triageService.js";
 import { HttpError } from "../utils/httpError.js";
 import { publishRealtimeEvent } from "../realtime/eventBus.js";
 import { autoAssignWardForEmergency, findAssignableDoctor, markDoctorAvailability } from "../repositories/operationsRepository.js";
+import { getHospitalById } from "../repositories/hospitalRepository.js";
 import { buildSafeImmediateGuidance } from "./firstAidService.js";
 import { findAssignableAmbulanceForHospital, updateAmbulanceTripStatus } from "../repositories/networkRepository.js";
 import { buildAIGuidanceFromFrame } from "./aiGuidanceService.js";
@@ -381,9 +382,10 @@ export async function handleHospitalResponse({ requestId, hospitalId, action, re
 
     const competingAttempts = pendingAttempts.filter((item) => item.hospitalId !== hospitalId);
 
-    const [assignableDoctor, assignableAmbulance] = await Promise.all([
+    const [assignableDoctor, assignableAmbulance, acceptingHospital] = await Promise.all([
       findAssignableDoctor(hospitalId),
-      findAssignableAmbulanceForHospital(hospitalId)
+      findAssignableAmbulanceForHospital(hospitalId),
+      getHospitalById(hospitalId)
     ]);
 
     await updateEmergencyRequest(requestId, {
@@ -399,6 +401,7 @@ export async function handleHospitalResponse({ requestId, hospitalId, action, re
       id: requestId,
       status: "accepted",
       assignedHospitalId: hospitalId,
+      assignedHospitalName: acceptingHospital?.name || null,
       assignedDoctorId: assignableDoctor?.id || null,
       assignedDoctorName: assignableDoctor?.fullName || null,
       assignedAmbulanceId: assignableAmbulance?.id || null,
@@ -418,6 +421,7 @@ export async function handleHospitalResponse({ requestId, hospitalId, action, re
       requestId,
       status: accepted.status,
       assignedHospitalId: accepted.assignedHospitalId,
+      assignedHospitalName: accepted.assignedHospitalName,
       assignedDoctorId: accepted.assignedDoctorId,
       assignedDoctorName: accepted.assignedDoctorName,
       assignedAmbulanceId: accepted.assignedAmbulanceId,
