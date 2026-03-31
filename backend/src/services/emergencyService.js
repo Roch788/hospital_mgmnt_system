@@ -223,6 +223,8 @@ export async function createEmergencyWorkflow(payload) {
   return request;
 }
 
+const allocationRetryCounters = new Map();
+
 export async function startOrRetryAllocation(requestId) {
   const request = await getEmergencyRequestById(requestId);
   if (!request) {
@@ -230,7 +232,29 @@ export async function startOrRetryAllocation(requestId) {
   }
 
   if (request.status === "cancelled" || request.status === "completed") {
+    allocationRetryCounters.delete(requestId);
     return request;
+  }
+
+  const retryCount = (allocationRetryCounters.get(requestId) || 0) + 1;
+  allocationRetryCounters.set(requestId, retryCount);
+
+  if (retryCount > env.ALLOCATION_MAX_RETRIES) {
+    allocationRetryCounters.delete(requestId);
+    clearDecisionTimer(requestId);
+
+    const failed = await updateEmergencyRequest(requestId, {
+      status: "failed_no_match",
+      assignedHospitalId: null
+    });
+
+    publishRealtimeEvent("request.status_changed", {
+      requestId,
+      status: failed.status,
+      assignedHospitalId: null
+    });
+
+    return failed;
   }
 
   clearDecisionTimer(requestId);
@@ -352,6 +376,7 @@ export async function handleHospitalResponse({ requestId, hospitalId, action, re
     }
 
     clearDecisionTimer(requestId);
+    allocationRetryCounters.delete(requestId);
     await closeAttemptByHospital(requestId, hospitalId, "accepted", null);
 
     const competingAttempts = pendingAttempts.filter((item) => item.hospitalId !== hospitalId);
@@ -459,6 +484,7 @@ export async function cancelEmergencyWorkflow({ requestId, reason }) {
   }
 
   clearDecisionTimer(requestId);
+  allocationRetryCounters.delete(requestId);
 
   if (request.assignedHospitalId) {
     await releaseHospitalReservation({

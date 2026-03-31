@@ -73,7 +73,7 @@ function isPendingActionable(status) {
 }
 
 function isUnresolvedStatus(status) {
-  return ["created", "pending_hospital_response", "rejected_retrying"].includes(status);
+  return ["created", "pending_hospital_response", "rejected_retrying", "failed_no_match"].includes(status);
 }
 
 const menuGroups = [

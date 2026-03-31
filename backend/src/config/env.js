@@ -16,6 +16,7 @@ export const env = {
     .map((value) => Number(value.trim()))
     .filter((value) => Number.isFinite(value) && value > 0),
   ALLOCATION_BATCH_SIZE: Number(process.env.ALLOCATION_BATCH_SIZE || 5),
+  ALLOCATION_MAX_RETRIES: Number(process.env.ALLOCATION_MAX_RETRIES || 3),
   GLOBAL_OBSERVER_HOSPITAL_CODES: (process.env.GLOBAL_OBSERVER_HOSPITAL_CODES || "IND-AITR-01")
     .split(",")
     .map((value) => value.trim())

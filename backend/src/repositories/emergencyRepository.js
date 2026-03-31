@@ -697,14 +697,13 @@ export async function listEmergencyRequests({ status, assignedHospitalId, offere
   let scopedRequestIds = null;
 
   if (offeredHospitalId) {
-    const { data: pendingRows, error: pendingError } = await supabaseAdmin
+    const { data: attemptRows, error: attemptError } = await supabaseAdmin
       .from("request_attempts")
       .select("emergency_request_id")
-      .eq("hospital_id", offeredHospitalId)
-      .eq("decision", "pending");
+      .eq("hospital_id", offeredHospitalId);
 
-    if (pendingError) {
-      throw new HttpError(500, pendingError.message, "DB_EMERGENCY_OFFER_SCOPE_FAILED");
+    if (attemptError) {
+      throw new HttpError(500, attemptError.message, "DB_EMERGENCY_OFFER_SCOPE_FAILED");
     }
 
     const { data: acceptedRows, error: acceptedError } = await supabaseAdmin
@@ -717,7 +716,7 @@ export async function listEmergencyRequests({ status, assignedHospitalId, offere
     }
 
     const unionIds = new Set([
-      ...(pendingRows || []).map((row) => row.emergency_request_id),
+      ...(attemptRows || []).map((row) => row.emergency_request_id),
       ...(acceptedRows || []).map((row) => row.id)
     ]);
 
@@ -945,14 +944,13 @@ export async function listEmergencyRequestsLite({ status, offeredHospitalId, lim
   let scopedRequestIds = null;
 
   if (offeredHospitalId) {
-    const { data: pendingRows, error: pendingError } = await supabaseAdmin
+    const { data: attemptRows, error: attemptError } = await supabaseAdmin
       .from("request_attempts")
       .select("emergency_request_id")
-      .eq("hospital_id", offeredHospitalId)
-      .eq("decision", "pending");
+      .eq("hospital_id", offeredHospitalId);
 
-    if (pendingError) {
-      throw new HttpError(500, pendingError.message, "DB_EMERGENCY_OFFER_SCOPE_FAILED");
+    if (attemptError) {
+      throw new HttpError(500, attemptError.message, "DB_EMERGENCY_OFFER_SCOPE_FAILED");
     }
 
     const { data: acceptedRows, error: acceptedError } = await supabaseAdmin
@@ -965,7 +963,7 @@ export async function listEmergencyRequestsLite({ status, offeredHospitalId, lim
     }
 
     const unionIds = new Set([
-      ...(pendingRows || []).map((row) => row.emergency_request_id),
+      ...(attemptRows || []).map((row) => row.emergency_request_id),
       ...(acceptedRows || []).map((row) => row.id)
     ]);
 
