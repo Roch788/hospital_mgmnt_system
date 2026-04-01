@@ -1,20 +1,19 @@
-import { FaAmbulance, FaBed, FaHospitalAlt } from 'react-icons/fa';
-
+import { Ambulance, Bed, Building2, Hospital } from 'lucide-react';
 const problems = [
   {
     title: 'Ambulance Delays',
     description: 'Patients struggle to find ambulances.',
-    icon: <FaAmbulance className="text-4xl text-primary" />,
+    icon: <Ambulance className="text-4xl text-primary" />,
   },
   {
     title: 'ICU Bed Shortage',
     description: 'Hospitals lack real-time bed information.',
-    icon: <FaBed className="text-4xl text-primary" />,
+    icon: <Bed className="text-4xl text-primary" />,
   },
   {
     title: 'Disconnected Hospitals',
     description: 'Hospitals operate independently.',
-    icon: <FaHospitalAlt className="text-4xl text-primary" />,
+    icon: <Building2 className="text-4xl text-primary" />,
   },
 ];
 

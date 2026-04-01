@@ -78,6 +78,7 @@ function isUnresolvedStatus(status) {
 
 const menuGroups = [
   { title: "HMS Overview", items: ["Operations Overview", "Emergency Board", "Department Snapshot"] },
+  { title: "OPD Connect", items: ["Live OPD Queue", "OPD Doctors", "Hospital Network"] },
   { title: "Doctors", items: ["All Doctors", "Add Doctor", "Shift Management"] },
   { title: "Patients", items: ["OPD Register", "IPD Register", "Discharge Queue"] },
   { title: "Room Management", items: ["Allotted Rooms", "New Allotment", "Ward Occupancy"] },
@@ -1433,9 +1434,170 @@ function SystemSettingsPage() {
       </header>
       <div className="cards">
         <div><strong>Realtime Alerts</strong><p>Enabled</p><p>Dispatch + Emergency + Billing</p></div>
-        <div><strong>Auto Refresh</strong><p>Enabled</p><p>Fast lane every 1 second</p></div>
+        <div><strong>Auto Refresh</strong><p>Enabled</p><p>Fast lane every 2 seconds</p></div>
         <div><strong>Security Policy</strong><p>JWT + Role Access</p><p>Hospital scope enforced</p></div>
       </div>
+    </section>
+  );
+}
+
+function OpdLiveQueuePage({ hospitals, liveData, selectedHospitalId, onSelectHospital, isLoading }) {
+  const departments = liveData?.departments || [];
+  const totalDoctors = liveData?.totalDoctors ?? departments.reduce((s, d) => s + (d.doctors?.length || 0), 0);
+  const nowServing = liveData?.nowServing ?? 0;
+  const totalWaiting = liveData?.totalWaiting ?? 0;
+  const completedToday = liveData?.completedToday ?? 0;
+
+  return (
+    <section className="panel">
+      <header>
+        <h3>OPD Live Queue</h3>
+        <span>{liveData ? `Updated ${new Date().toLocaleTimeString()}` : "Connecting to OPD…"}</span>
+      </header>
+
+      {hospitals.length > 0 && (
+        <div className="actions-row left" style={{ marginBottom: 12, flexWrap: "wrap" }}>
+          {hospitals.map((h) => (
+            <button
+              key={h.id}
+              type="button"
+              className={String(h.id) === String(selectedHospitalId) ? "primary" : "ghost"}
+              onClick={() => onSelectHospital(String(h.id))}
+            >
+              {h.name || h.code}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {isLoading && <p className="muted-text">Loading OPD data…</p>}
+
+      {!isLoading && liveData && (
+        <>
+          <section className="kpi-grid">
+            <article className="kpi-card green"><h3>On Duty Doctors</h3><p>{totalDoctors}</p><small>Active in OPD</small></article>
+            <article className="kpi-card blue"><h3>Now Serving</h3><p>{nowServing}</p><small>Token in consultation</small></article>
+            <article className="kpi-card orange"><h3>Waiting</h3><p>{totalWaiting}</p><small>In queue</small></article>
+            <article className="kpi-card red"><h3>Completed Today</h3><p>{completedToday}</p><small>Consultations done</small></article>
+          </section>
+
+          {departments.map((dept) => (
+            <div key={dept.name} style={{ marginBottom: 12 }}>
+              <h4 className="section-title">{dept.name}</h4>
+              <Table
+                columns={["Doctor", "Specialization", "Room", "Active Cases", "Waiting", "Status"]}
+                rows={(dept.doctors || []).map((dr) => [
+                  dr.name || "-",
+                  dr.specialization || "-",
+                  dr.room || "-",
+                  String(dr.nowServing ?? 0),
+                  String(dr.totalWaiting ?? 0),
+                  dr.isOnline !== false ? "Online" : "Offline"
+                ])}
+                emptyText="No doctors in this department."
+              />
+            </div>
+          ))}
+        </>
+      )}
+
+      {!isLoading && !liveData && (
+        <p className="muted-text">
+          Select a hospital above to view the live OPD queue.
+          {hospitals.length === 0 ? " Ensure the backend server is running." : ""}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function OpdDoctorsPage({ hospitals }) {
+  const allDoctors = hospitals.flatMap((h) =>
+    (h.doctors || []).map((d) => ({ ...d, hospitalName: h.name || h.code }))
+  );
+
+  const deptSet = new Set(allDoctors.map((d) => d.department).filter(Boolean));
+
+  return (
+    <section className="panel">
+      <header>
+        <h3>OPD Doctors</h3>
+        <span>{allDoctors.length} doctors across {hospitals.length} hospitals</span>
+      </header>
+
+      <section className="kpi-grid">
+        <article className="kpi-card blue"><h3>Total OPD Doctors</h3><p>{allDoctors.length}</p><small>Registered across network</small></article>
+        <article className="kpi-card green"><h3>Hospitals</h3><p>{hospitals.length}</p><small>Active in OPD system</small></article>
+        <article className="kpi-card orange"><h3>Departments</h3><p>{deptSet.size}</p><small>Specialty coverage</small></article>
+        <article className="kpi-card red"><h3>Avg per Hospital</h3><p>{hospitals.length ? Math.round(allDoctors.length / hospitals.length) : 0}</p><small>Doctors per facility</small></article>
+      </section>
+
+      <Table
+        columns={["Doctor", "Hospital", "Department", "Specialization", "Room", "Email"]}
+        rows={allDoctors.map((d) => [
+          d.name || "-",
+          d.hospitalName || "-",
+          d.department || "-",
+          d.specialization || "-",
+          d.room || "-",
+          d.email || "-"
+        ])}
+        emptyText="OPD doctor network not loaded. Ensure backend is running."
+      />
+    </section>
+  );
+}
+
+function OpdNetworkPage({ hospitals }) {
+  const totalDoctors = hospitals.reduce((sum, h) => sum + (h.doctors?.length || 0), 0);
+  const allDepts = new Set(
+    hospitals.flatMap((h) => (h.doctors || []).map((d) => d.department)).filter(Boolean)
+  );
+
+  return (
+    <section className="panel">
+      <header>
+        <h3>Hospital Network</h3>
+        <span>All hospitals registered in the OPD system</span>
+      </header>
+
+      <section className="kpi-grid">
+        <article className="kpi-card blue"><h3>Network Size</h3><p>{hospitals.length}</p><small>Hospitals online</small></article>
+        <article className="kpi-card green"><h3>Total Doctors</h3><p>{totalDoctors}</p><small>Across all hospitals</small></article>
+        <article className="kpi-card orange"><h3>Departments</h3><p>{allDepts.size}</p><small>Specialties covered</small></article>
+        <article className="kpi-card red"><h3>System</h3><p>Live</p><small>MediSync OPD network</small></article>
+      </section>
+
+      <Table
+        columns={["Hospital", "Code", "Doctors", "Departments", "Status"]}
+        rows={hospitals.map((h) => {
+          const hDepts = new Set((h.doctors || []).map((d) => d.department).filter(Boolean));
+          return [
+            h.name || "-",
+            h.code || "-",
+            String(h.doctors?.length || 0),
+            String(hDepts.size),
+            "Active"
+          ];
+        })}
+        emptyText="No hospitals loaded."
+      />
+
+      {hospitals.map((h) => (
+        <div key={h.id} style={{ marginBottom: 12, marginTop: 8 }}>
+          <h4 className="section-title">{h.name}</h4>
+          <Table
+            columns={["Doctor", "Department", "Specialization", "Room"]}
+            rows={(h.doctors || []).map((d) => [
+              d.name || "-",
+              d.department || "-",
+              d.specialization || "-",
+              d.room || "-"
+            ])}
+            emptyText="No doctors for this hospital."
+          />
+        </div>
+      ))}
     </section>
   );
 }
@@ -1509,8 +1671,15 @@ export default function App() {
     role: "hospital_admin_staff"
   });
 
+  // OPD Connect state
+  const [opdHospitals, setOpdHospitals] = useState([]);
+  const [opdLiveData, setOpdLiveData] = useState(null);
+  const [selectedOpdHospitalId, setSelectedOpdHospitalId] = useState("");
+  const [opdLoading, setOpdLoading] = useState(false);
+
   const navSearchRef = useRef(null);
   const responseLockRef = useRef(new Map());
+  const fastLaneFetchingRef = useRef(false);
 
   function pruneResponseLocks() {
     const now = Date.now();
@@ -1602,40 +1771,49 @@ export default function App() {
   }
 
   async function loadFastLaneData(seedToken = accessToken) {
+    if (fastLaneFetchingRef.current) {
+      return;
+    }
+    fastLaneFetchingRef.current = true;
     const token = seedToken;
     if (!token) {
+      fastLaneFetchingRef.current = false;
       throw new Error("Missing access token");
     }
 
-    const allPayload = await authGet("/hospital/requests?limit=80&mode=fast", token);
-    const allItems = allPayload?.items || [];
+    try {
+      const allPayload = await authGet("/hospital/requests?limit=80&mode=fast", token);
+      const allItems = allPayload?.items || [];
 
-    pruneResponseLocks();
+      pruneResponseLocks();
 
-    const incomingPending = allItems
-      .filter((item) => isUnresolvedStatus(item.status))
-      .filter((item) => getResponseLockStatus(item.id) !== "accepted");
-    const incomingAccepted = allItems.filter((item) => item.status === "accepted");
-    const acceptedIds = new Set(incomingAccepted.map((item) => item.id));
+      const incomingPending = allItems
+        .filter((item) => isUnresolvedStatus(item.status))
+        .filter((item) => getResponseLockStatus(item.id) !== "accepted");
+      const incomingAccepted = allItems.filter((item) => item.status === "accepted");
+      const acceptedIds = new Set(incomingAccepted.map((item) => item.id));
 
-    for (const [requestId, lock] of responseLockRef.current.entries()) {
-      if (lock?.status !== "accepted" || acceptedIds.has(requestId)) {
-        continue;
+      for (const [requestId, lock] of responseLockRef.current.entries()) {
+        if (lock?.status !== "accepted" || acceptedIds.has(requestId)) {
+          continue;
+        }
+
+        const fallbackItem =
+          activeRequests.find((item) => item.id === requestId) ||
+          recentRequests.find((item) => item.id === requestId) ||
+          incomingPending.find((item) => item.id === requestId) ||
+          { id: requestId, status: "accepted" };
+
+        incomingAccepted.unshift({ ...fallbackItem, status: "accepted" });
+        acceptedIds.add(requestId);
       }
 
-      const fallbackItem =
-        activeRequests.find((item) => item.id === requestId) ||
-        recentRequests.find((item) => item.id === requestId) ||
-        incomingPending.find((item) => item.id === requestId) ||
-        { id: requestId, status: "accepted" };
-
-      incomingAccepted.unshift({ ...fallbackItem, status: "accepted" });
-      acceptedIds.add(requestId);
+      setPendingRequests(incomingPending);
+      setActiveRequests(incomingAccepted);
+      setLastFastSyncAt(new Date().toISOString());
+    } finally {
+      fastLaneFetchingRef.current = false;
     }
-
-    setPendingRequests(incomingPending);
-    setActiveRequests(incomingAccepted);
-    setLastFastSyncAt(new Date().toISOString());
   }
 
   async function loadLiveData(seedToken = accessToken, seedHospitalId = hospitalId) {
@@ -1860,6 +2038,48 @@ export default function App() {
     setConnectionLabel("Offline sample mode");
     responseLockRef.current.clear();
   }
+
+  // OPD Connect: load hospital network and per-hospital display data
+  async function loadOpdNetwork() {
+    try {
+      const payload = await fetch(`${API_BASE}/opd/network`).then((r) => r.json()).catch(() => ({}));
+      const list = payload?.data || [];
+      setOpdHospitals(list);
+      if (list.length > 0 && !selectedOpdHospitalId) {
+        setSelectedOpdHospitalId(String(list[0].id));
+      }
+    } catch {
+      // OPD data is supplementary; silently skip on failure.
+    }
+  }
+
+  async function loadOpdDisplay(hospId) {
+    if (!hospId) return;
+    setOpdLoading(true);
+    try {
+      const payload = await fetch(`${API_BASE}/opd/display/${encodeURIComponent(hospId)}`)
+        .then((r) => r.json())
+        .catch(() => null);
+      setOpdLiveData(payload || null);
+    } catch {
+      // OPD display is supplementary; silently skip on failure.
+    } finally {
+      setOpdLoading(false);
+    }
+  }
+
+  // Load OPD network once on mount (no auth required)
+  useEffect(() => {
+    void loadOpdNetwork();
+  }, []);
+
+  // Refresh OPD display every 10s when a hospital is selected
+  useEffect(() => {
+    if (!selectedOpdHospitalId) return undefined;
+    void loadOpdDisplay(selectedOpdHospitalId);
+    const timer = setInterval(() => loadOpdDisplay(selectedOpdHospitalId), 10000);
+    return () => clearInterval(timer);
+  }, [selectedOpdHospitalId]);
 
   useEffect(() => {
     if (!accessToken) {
@@ -2608,6 +2828,24 @@ export default function App() {
     }
     if (key === "HMS Overview:Department Snapshot") {
       return <DepartmentSnapshotPage doctors={doctors} roomAllotments={roomAllotments} snapshot={snapshot} />;
+    }
+
+    if (key === "OPD Connect:Live OPD Queue") {
+      return (
+        <OpdLiveQueuePage
+          hospitals={opdHospitals}
+          liveData={opdLiveData}
+          selectedHospitalId={selectedOpdHospitalId}
+          onSelectHospital={setSelectedOpdHospitalId}
+          isLoading={opdLoading}
+        />
+      );
+    }
+    if (key === "OPD Connect:OPD Doctors") {
+      return <OpdDoctorsPage hospitals={opdHospitals} />;
+    }
+    if (key === "OPD Connect:Hospital Network") {
+      return <OpdNetworkPage hospitals={opdHospitals} />;
     }
 
     if (key === "Doctors:All Doctors") {

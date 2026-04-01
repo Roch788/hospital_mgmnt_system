@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 const HeroMapAnimation = () => {
   return (
     <div className="relative w-full h-full bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl overflow-hidden border border-slate-200/50 shadow-xl">
@@ -10,11 +8,8 @@ const HeroMapAnimation = () => {
         loading="lazy"
       ></iframe>
       {/* Overlay for branding */}
-      <motion.div
+      <div
         className="absolute top-3 left-3 lg:top-4 lg:left-4 bg-white/90 backdrop-blur-md rounded-xl p-3 lg:p-4 border border-white/60 shadow-lg max-w-xs text-sm"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
       >
         <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2 text-xs lg:text-sm">
           <span className="text-lg">🏥</span> MediSync Network
@@ -33,7 +28,7 @@ const HeroMapAnimation = () => {
             <span className="font-semibold text-red-600">City-wide</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -516,3 +516,18 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #06B6D4;
 }
+
+/* ==================== UTILITY ANIMATIONS ==================== */
+
+.animate-fade-in {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.animate-sos-glow {
+  animation: sosGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes sosGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.9); }
+}

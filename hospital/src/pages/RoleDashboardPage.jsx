@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { clearSession, getAccessToken, getSessionUser } from '../services/authApi';
 import {
   createManualHospitalRequest,
@@ -446,9 +445,7 @@ const RoleDashboardPage = ({ role = 'patient', onBackHome }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-cyan-50 px-4 py-10">
       <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className="w-full rounded-3xl border border-white/40 bg-white/70 p-8 shadow-xl backdrop-blur-xl sm:p-10"
         >
           {isOperationalRole ? (
@@ -535,7 +532,7 @@ const RoleDashboardPage = ({ role = 'patient', onBackHome }) => {
               onLogout={logoutAndExit}
             />
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

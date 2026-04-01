@@ -1,5 +1,4 @@
-import { FaRocket, FaArrowRight } from 'react-icons/fa';
-
+import { ArrowRight, Rocket } from 'lucide-react';
 const CTASection = ({ onSOSClick }) => {
   return (
     <section id="cta" className="py-16 px-4 relative overflow-hidden">
@@ -18,14 +17,14 @@ const CTASection = ({ onSOSClick }) => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-700 rounded-xl font-bold text-base shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2">
-              <FaRocket /> Register Your Hospital
+              <Rocket /> Register Your Hospital
             </button>
 
             <button
               onClick={onSOSClick}
               className="px-6 py-3 md:px-8 md:py-4 bg-red-500 text-white rounded-xl font-bold text-base shadow-xl hover:shadow-2xl transition-all border-2 border-white/30 flex items-center justify-center gap-2"
             >
-              🚨 Activate Emergency Access <FaArrowRight />
+              🚨 Activate Emergency Access <ArrowRight />
             </button>
           </div>
 

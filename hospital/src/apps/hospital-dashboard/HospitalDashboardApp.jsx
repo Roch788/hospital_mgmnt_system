@@ -1,3 +1,161 @@
+import { useCallback, useEffect, useState } from 'react';
+import { Activity, Users, CheckCircle, Clock, RefreshCw, Stethoscope, Building2 } from 'lucide-react';
+
+const OPD_API = import.meta.env.VITE_OPD_API_URL || 'http://localhost:3900/api';
+
+const DEPT_COLORS = {
+  CARD: 'bg-red-50 border-red-200 text-red-700',
+  ORTH: 'bg-blue-50 border-blue-200 text-blue-700',
+  NEUR: 'bg-purple-50 border-purple-200 text-purple-700',
+  PEDI: 'bg-green-50 border-green-200 text-green-700',
+  GENM: 'bg-slate-50 border-slate-200 text-slate-700',
+};
+
+function OpdLivePanel() {
+  const [hospitals, setHospitals] = useState([]);
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const loadHospitals = useCallback(async () => {
+    try {
+      const res = await fetch(`${OPD_API}/hospitals`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setHospitals(data);
+      if (!selectedHospital && data.length > 0) {
+        setSelectedHospital(data[0].id);
+      }
+    } catch {
+      // OPD server might not be running — fail silently
+    }
+  }, [selectedHospital]);
+
+  const loadStats = useCallback(async (hospitalId) => {
+    if (!hospitalId) return;
+    try {
+      const res = await fetch(`${OPD_API}/display/${hospitalId}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setStats(data);
+      setLastUpdated(new Date());
+    } catch {
+      // Fail silently
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadHospitals(); }, [loadHospitals]);
+  useEffect(() => {
+    if (!selectedHospital) return undefined;
+    setLoading(true);
+    loadStats(selectedHospital);
+    const t = setInterval(() => loadStats(selectedHospital), 15000);
+    return () => clearInterval(t);
+  }, [selectedHospital, loadStats]);
+
+  return (
+    <div className="mt-6 rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <Stethoscope className="w-5 h-5 text-emerald-600" />
+          <p className="text-sm font-bold text-emerald-800">OPD Live Queue</p>
+          {lastUpdated && (
+            <span className="text-[10px] text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+              Live · {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {hospitals.length > 0 && (
+            <select
+              className="text-xs border border-emerald-200 rounded-lg px-3 py-1.5 bg-white text-slate-700"
+              value={selectedHospital || ''}
+              onChange={(e) => setSelectedHospital(e.target.value)}
+            >
+              {hospitals.map((h) => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
+          )}
+          <button
+            type="button"
+            onClick={() => loadStats(selectedHospital)}
+            className="text-xs border border-emerald-200 rounded-lg px-3 py-1.5 bg-white text-slate-700 flex items-center gap-1 hover:bg-emerald-50"
+          >
+            <RefreshCw className="w-3 h-3" /> Refresh
+          </button>
+        </div>
+      </div>
+
+      {loading && !stats ? (
+        <p className="text-sm text-emerald-700 py-4 text-center">Loading OPD data...</p>
+      ) : !stats ? (
+        <p className="text-sm text-slate-500 py-4 text-center">OPD server offline — start the OPD server on port 3900</p>
+      ) : (
+        <>
+          {/* Summary stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            {[
+              { icon: Users, label: 'Waiting', value: stats.active?.filter(t => t.status === 'waiting').length ?? 0, color: 'text-amber-600' },
+              { icon: Activity, label: 'In Consultation', value: stats.nowServing?.length ?? 0, color: 'text-emerald-600' },
+              { icon: CheckCircle, label: 'Completed Today', value: stats.completedToday ?? 0, color: 'text-blue-600' },
+              { icon: Clock, label: 'Total Today', value: stats.totalToday ?? 0, color: 'text-purple-600' },
+            ].map(({ icon: Icon, label, value, color }) => (
+              <div key={label} className="bg-white rounded-xl border border-white/60 p-3 text-center">
+                <Icon className={`mx-auto w-5 h-5 mb-1 ${color}`} />
+                <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Now Serving */}
+          {stats.nowServing?.length > 0 && (
+            <div className="mb-4 rounded-xl border border-emerald-200 bg-white p-3">
+              <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                NOW SERVING
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {stats.nowServing.slice(0, 6).map((t) => (
+                  <div key={t.id} className={`text-xs rounded-lg border px-3 py-1.5 font-semibold ${DEPT_COLORS[t.department_code] || DEPT_COLORS.GENM}`}>
+                    {t.token_number} · {t.doctor_name} · Rm {t.room_number}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Per-department queue summary */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {(stats.departments || []).map((dept) => {
+              const deptTokens = stats.active?.filter(t => t.department_id === dept.id) || [];
+              const waiting = deptTokens.filter(t => t.status === 'waiting').length;
+              const inConsult = deptTokens.filter(t => t.status === 'in_consultation').length;
+              const color = DEPT_COLORS[dept.code] || DEPT_COLORS.GENM;
+              return (
+                <div key={dept.id} className={`rounded-xl border p-3 text-center ${color}`}>
+                  <p className="text-xs font-bold truncate">{dept.code}</p>
+                  <p className="text-lg font-extrabold mt-1">{waiting}</p>
+                  <p className="text-[10px]">waiting</p>
+                  {inConsult > 0 && (
+                    <span className="inline-block mt-1 text-[9px] bg-white/60 rounded-full px-1.5 py-0.5 font-bold">
+                      {inConsult} active
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 const statusOptions = [
   'pending_hospital_response',
   'accepted',
@@ -52,9 +210,12 @@ export const HospitalDashboardApp = ({
       </div>
 
       <div className="mt-6 rounded-2xl border border-cyan-100 bg-cyan-50/70 p-4">
-        <p className="text-sm font-bold uppercase tracking-wide text-cyan-800">Hospital Dashboard App</p>
-        <p className="text-xs text-cyan-700/90">Real-time request queue, response actions, and manual dispatch creation</p>
+        <p className="text-sm font-bold uppercase tracking-wide text-cyan-800">Hospital Dashboard</p>
+        <p className="text-xs text-cyan-700/90">Emergency request queue, response actions, and live OPD monitoring</p>
       </div>
+
+      {/* OPD Live Queue Panel */}
+      <OpdLivePanel />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {statusOptions.map((status) => (

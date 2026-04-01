@@ -1,7 +1,6 @@
-import { useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import { FaHospital, FaAmbulance, FaBed, FaUserMd } from 'react-icons/fa';
-
+import { useInView } from '../utils/useInView';
+import { Ambulance, Bed, Hospital, Stethoscope } from 'lucide-react';
 const CountUpNumber = ({ end, duration = 2.5 }) => {
   const [count, setCount] = useState(0);
 
@@ -28,10 +27,10 @@ const StatsSection = () => {
   const inView = useInView(ref, { once: true, margin: '-100px' });
 
   const stats = [
-    { label: 'Hospitals Connected', value: 250, icon: FaHospital, color: 'bg-blue-600' },
-    { label: 'ICU Beds Available', value: 900, icon: FaBed, color: 'bg-green-600' },
-    { label: 'Ambulances Active', value: 120, icon: FaAmbulance, color: 'bg-red-600' },
-    { label: 'Doctors On Duty', value: 500, icon: FaUserMd, color: 'bg-purple-600' },
+    { label: 'Hospitals Connected', value: 250, icon: Hospital, color: 'bg-blue-600' },
+    { label: 'ICU Beds Available', value: 900, icon: Bed, color: 'bg-green-600' },
+    { label: 'Ambulances Active', value: 120, icon: Ambulance, color: 'bg-red-600' },
+    { label: 'Doctors On Duty', value: 500, icon: Stethoscope, color: 'bg-purple-600' },
   ];
 
   return (

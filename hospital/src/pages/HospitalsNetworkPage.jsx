@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import FloatingNavbar from '../components/FloatingNavbar';
 import Footer from '../components/Footer';
 
@@ -231,22 +230,18 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
       <div className="px-4 py-8 md:px-6">
       <div className="absolute inset-0 pointer-events-none">
         {['🏥', '🚑', '🩺', '❤️‍🩹'].map((icon, idx) => (
-          <motion.span
+          <span
             key={`${icon}-${idx}`}
             className="absolute text-3xl opacity-10"
-            animate={{ y: [18, -20, 18], x: [0, idx % 2 ? -14 : 14, 0], opacity: [0.05, 0.12, 0.05] }}
-            transition={{ duration: 6 + idx, repeat: Infinity, ease: 'easeInOut' }}
             style={{ left: `${9 + idx * 22}%`, top: `${12 + idx * 18}%` }}
           >
             {icon}
-          </motion.span>
+          </span>
         ))}
       </div>
 
       <div className="relative mx-auto max-w-7xl pt-20">
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <section
           className="rounded-3xl border border-white/40 bg-white/55 p-6 shadow-xl backdrop-blur-xl sm:p-8"
         >
           <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-2">
@@ -289,9 +284,7 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
                     className="absolute"
                     style={{ left: hospital.left, top: hospital.top }}
                   >
-                    <motion.span
-                      animate={{ scale: [1, 1.3, 1], opacity: [0.8, 0.45, 0.8] }}
-                      transition={{ duration: 1.8, repeat: Infinity }}
+                    <span
                       className={`absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full ${statusClassByColor[status.color]} opacity-40`}
                     />
                     <span className={`relative block h-3 w-3 rounded-full ${statusClassByColor[status.color]}`} />
@@ -315,28 +308,27 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
               ) : null}
             </div>
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { icon: '🏥', label: 'Total Hospitals Connected', value: animatedStats.hospitals },
             { icon: '🛏', label: 'ICU Beds Available', value: animatedStats.icuBeds },
             { icon: '🚑', label: 'Ambulances Active', value: animatedStats.ambulances },
             { icon: '👨‍⚕️', label: 'Doctors On Duty', value: animatedStats.doctors },
           ].map((card) => (
-            <motion.div
+            <div
               key={card.label}
-              whileHover={{ y: -6 }}
               className="rounded-2xl border border-white/40 bg-white/60 p-5 shadow-lg backdrop-blur-lg"
             >
               <p className="text-xl">{card.icon}</p>
               <p className="mt-3 text-sm text-slate-600">{card.label}</p>
               <p className="mt-1 text-2xl font-bold text-slate-800">{card.value}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.section>
+        </section>
 
-        <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6 rounded-2xl border border-white/40 bg-white/60 p-5 shadow-lg backdrop-blur-lg">
+        <section className="mt-6 rounded-2xl border border-white/40 bg-white/60 p-5 shadow-lg backdrop-blur-lg">
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_repeat(5,1fr)]">
             <input
               value={search}
@@ -376,9 +368,9 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
           </div>
 
           {filterChips.length > 0 ? (
-            <motion.div layout className="mt-4 flex flex-wrap gap-2">
+            <div layout className="mt-4 flex flex-wrap gap-2">
               {filterChips.map((chip) => (
-                <motion.button
+                <button
                   layout
                   key={chip.key}
                   type="button"
@@ -389,21 +381,20 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
                   className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700"
                 >
                   {chip.value} ×
-                </motion.button>
+                </button>
               ))}
-            </motion.div>
+            </div>
           ) : null}
-        </motion.section>
+        </section>
 
-        <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6">
+        <section className="mt-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredHospitals.map((hospital) => {
               const status = getAvailabilityStatus(hospital);
 
               return (
-                <motion.article
+                <article
                   key={hospital.id}
-                  whileHover={{ y: -6 }}
                   className="rounded-2xl border border-white/40 bg-white/65 p-5 shadow-lg backdrop-blur-lg transition hover:border-blue-300"
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -421,9 +412,7 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
                   </div>
 
                   <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <motion.span
-                      animate={{ scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 1.6, repeat: Infinity }}
+                    <span
                       className={`h-2.5 w-2.5 rounded-full ${statusClassByColor[status.color]}`}
                     />
                     <span>{status.color === 'green' ? '🟢' : status.color === 'yellow' ? '🟡' : '🔴'} {status.label}</span>
@@ -444,26 +433,26 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
                       Request Emergency
                     </button>
                   </div>
-                </motion.article>
+                </article>
               );
             })}
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6 rounded-2xl border border-white/40 bg-white/65 p-6 shadow-lg backdrop-blur-lg">
+        <section className="mt-6 rounded-2xl border border-white/40 bg-white/65 p-6 shadow-lg backdrop-blur-lg">
           <h2 className="text-2xl font-bold text-slate-800">AI Powered Emergency Hospital Matching</h2>
           <p className="mt-2 text-slate-600">Our intelligent system finds the nearest hospital with the required medical resources in seconds.</p>
 
           <div className="mt-5 grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
             <div className="rounded-xl bg-white/80 p-4 text-center font-semibold text-slate-700">Patient</div>
-            <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.6, repeat: Infinity }} className="text-center text-xl text-blue-600">→</motion.span>
+            <span className="text-center text-xl text-blue-600">→</span>
             <div className="rounded-xl bg-white/80 p-4 text-center font-semibold text-slate-700">MediSync AI System</div>
-            <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.6, repeat: Infinity }} className="text-center text-xl text-blue-600">→</motion.span>
+            <span className="text-center text-xl text-blue-600">→</span>
             <div className="rounded-xl bg-white/80 p-4 text-center font-semibold text-slate-700">Best Hospital Match</div>
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-6 mb-8 rounded-3xl border border-white/40 bg-white/70 p-6 text-center shadow-xl backdrop-blur-xl sm:p-8">
+        <section className="mt-6 mb-8 rounded-3xl border border-white/40 bg-white/70 p-6 text-center shadow-xl backdrop-blur-xl sm:p-8">
           <h2 className="text-2xl font-bold text-slate-800 sm:text-3xl">Need Emergency Medical Help?</h2>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -481,12 +470,12 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
               🔍 Find Nearest Hospital
             </button>
           </div>
-        </motion.section>
+        </section>
       </div>
 
       {selectedHospital ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/45 p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-2xl rounded-2xl border border-white/40 bg-white/90 p-6 shadow-2xl backdrop-blur-xl">
+          <div className="w-full max-w-2xl rounded-2xl border border-white/40 bg-white/90 p-6 shadow-2xl backdrop-blur-xl">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-2xl font-bold text-slate-800">{selectedHospital.name}</h3>
@@ -508,7 +497,7 @@ const HospitalsNetworkPage = ({ onHomeClick, onSOSClick, onLoginClick, onRegiste
               <button type="button" className="rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 text-sm font-semibold text-white">Call Hospital</button>
               <button type="button" className="rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700">View on Map</button>
             </div>
-          </motion.div>
+          </div>
         </div>
       ) : null}
 

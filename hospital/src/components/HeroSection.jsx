@@ -1,5 +1,5 @@
-import { FaCheckCircle, FaArrowRight } from 'react-icons/fa';
 import HeroMapAnimation from './HeroMapAnimation';
+import { ArrowRight, Check, CheckCircle } from 'lucide-react';
 
 const HeroSection = ({ onSOSClick }) => {
   return (
@@ -24,12 +24,12 @@ const HeroSection = ({ onSOSClick }) => {
                 className="px-7 py-3 bg-red-600 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
               >
                 🚑 Find Emergency Care
-                <FaArrowRight size={16} />
+                <ArrowRight size={16} />
               </button>
 
               <button className="px-7 py-3 bg-blue-600 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
                 🏥 Explore Network
-                <FaArrowRight size={18} />
+                <ArrowRight size={18} />
               </button>
             </div>
 
@@ -41,7 +41,7 @@ const HeroSection = ({ onSOSClick }) => {
                 'Instant ambulance dispatch',
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 text-lg flex-shrink-0" />
+                  <CheckCircle className="text-green-500 text-lg flex-shrink-0" />
                   <span className="text-gray-700 font-inter text-sm">{item}</span>
                 </div>
               ))}

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { registerPatient } from '../services/authApi';
 
 const roles = [
@@ -309,27 +308,18 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
       <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-cyan-50 px-4 py-10">
         <div className="absolute inset-0 pointer-events-none">
           {['🏥', '🚑', '🩺', '❤️‍🩹'].map((symbol, index) => (
-            <motion.span
+            <span
               key={symbol}
               className="absolute text-3xl opacity-20"
-              initial={{ y: 40, opacity: 0 }}
-              animate={{
-                y: [30, -30, 30],
-                opacity: [0.1, 0.25, 0.1],
-                x: [0, index % 2 === 0 ? 15 : -15, 0],
-              }}
-              transition={{ duration: 6 + index, repeat: Infinity, ease: 'easeInOut' }}
               style={{ left: `${20 + index * 20}%`, top: `${15 + index * 17}%` }}
             >
               {symbol}
-            </motion.span>
+            </span>
           ))}
         </div>
 
         <div className="mx-auto flex min-h-[80vh] max-w-3xl items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+          <div
             className="w-full rounded-2xl border border-white/40 bg-white/60 p-8 text-center shadow-xl backdrop-blur-xl"
           >
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">
@@ -340,7 +330,7 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
               Redirecting to your {roles.find((role) => role.key === selectedRole)?.label} Dashboard...
             </p>
             <p className="mt-6 text-sm text-slate-500">Preparing your workspace in the real-time healthcare network.</p>
-          </motion.div>
+          </div>
         </div>
       </div>
     );
@@ -350,28 +340,18 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-cyan-50 px-4 py-8 md:px-6">
       <div className="absolute inset-0 pointer-events-none">
         {['🏥', '🚑', '🩺', '❤️‍🩹'].map((symbol, index) => (
-          <motion.span
+          <span
             key={`${symbol}-${index}`}
             className="absolute text-3xl opacity-20"
-            initial={{ y: 40, opacity: 0 }}
-            animate={{
-              y: [30, -35, 30],
-              opacity: [0.05, 0.2, 0.05],
-              x: [0, index % 2 === 0 ? 20 : -20, 0],
-            }}
-            transition={{ duration: 8 + index * 0.6, repeat: Infinity, ease: 'easeInOut' }}
             style={{ left: `${7 + index * 23}%`, top: `${10 + index * 18}%` }}
           >
             {symbol}
-          </motion.span>
+          </span>
         ))}
       </div>
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-8 pt-16 lg:grid-cols-2 lg:items-start">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+        <div
           className="hidden gap-6 rounded-3xl border border-white/40 bg-white/40 p-8 shadow-xl backdrop-blur-sm lg:sticky lg:top-24 lg:flex lg:flex-col"
         >
           <div>
@@ -393,23 +373,19 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
               { icon: '🧠', title: 'AI Triage Support' },
               { icon: '🔒', title: 'Secure Onboarding' },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.title}
-                whileHover={{ y: -5, scale: 1.02 }}
                 className="rounded-2xl border border-white/40 bg-white/60 p-4 shadow-md"
               >
                 <span className="text-xl">{item.icon}</span>
                 <p className="mt-2 font-semibold text-slate-700">{item.title}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        <motion.form
+        <form
           onSubmit={handleSubmit}
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
           className="rounded-2xl border border-white/40 bg-white/55 p-6 shadow-xl backdrop-blur-xl sm:p-8"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -552,15 +528,13 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
               <section>
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">Step 3 — Location Details</h3>
                 <div className="mt-3">
-                  <motion.button
+                  <button
                     type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={detectLocation}
                     className="rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm"
                   >
                     📍 Detect My Location
-                  </motion.button>
+                  </button>
                 </div>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {Object.keys(locationFieldLabels).map((field) => (
@@ -603,24 +577,20 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
                     value={otp.value}
                     onChange={(event) => setOtp((prev) => ({ ...prev, value: event.target.value }))}
                   />
-                  <motion.button
+                  <button
                     type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={handleSendOtp}
                     className="rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700"
                   >
                     Send OTP
-                  </motion.button>
-                  <motion.button
+                  </button>
+                  <button
                     type="button"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={handleVerifyOtp}
                     className="rounded-xl bg-blue-100 px-4 py-3 text-sm font-semibold text-blue-700"
                   >
                     Verify OTP
-                  </motion.button>
+                  </button>
                 </div>
                 {otp.verified ? <p className="mt-2 text-sm font-semibold text-emerald-600">✅ Mobile Verified</p> : null}
                 <section>
@@ -654,29 +624,25 @@ const RegistrationPage = ({ onBack, onSuccessRedirect }) => {
             </button>
 
             {currentStep < totalSteps ? (
-              <motion.button
+              <button
                 type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 onClick={handleNextStep}
                 disabled={!canGoNext}
                 className="sm:col-span-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 font-semibold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Continue to Step {currentStep + 1}
-              </motion.button>
+              </button>
             ) : (
-              <motion.button
+              <button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 disabled={!canSubmit || isSubmitting}
                 className="sm:col-span-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 font-semibold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? 'Creating Account...' : 'Create Account'}
-              </motion.button>
+              </button>
             )}
           </div>
-        </motion.form>
+        </form>
       </div>
     </div>
   );

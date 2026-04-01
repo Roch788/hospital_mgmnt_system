@@ -1,7 +1,6 @@
-import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { FaMapMarkerAlt, FaAmbulance, FaBed, FaHeartbeat, FaChartLine, FaBrain } from 'react-icons/fa';
-
+import { useInView } from '../utils/useInView';
+import { Ambulance, Bed, Brain, HeartPulse, MapPin, TrendingUp } from 'lucide-react';
 const FeaturesGrid = ({ modal = false }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-100px' });
@@ -10,37 +9,37 @@ const FeaturesGrid = ({ modal = false }) => {
     {
       title: 'Real-Time Resource Tracking',
       description: 'Monitor ICU beds, ventilators, and medical equipment across all hospitals in real-time.',
-      icon: <FaMapMarkerAlt />,
+      icon: <MapPin />,
       color: 'bg-blue-600',
     },
     {
       title: 'Ambulance Dispatch System',
       description: 'Intelligent routing algorithm that dispatches nearest ambulance within seconds.',
-      icon: <FaAmbulance />,
+      icon: <Ambulance />,
       color: 'bg-red-600',
     },
     {
       title: 'ICU Bed Availability Monitoring',
       description: 'Live dashboard showing available beds, equipment, and specialties across network.',
-      icon: <FaBed />,
+      icon: <Bed />,
       color: 'bg-green-600',
     },
     {
       title: 'AI Smart Hospital Matching',
       description: 'Machine learning algorithm matches patients with the best available hospital resources.',
-      icon: <FaBrain />,
+      icon: <Brain />,
       color: 'bg-purple-600',
     },
     {
       title: 'Healthcare Analytics Dashboard',
       description: 'Comprehensive analytics for hospital administrators and emergency coordinators.',
-      icon: <FaChartLine />,
+      icon: <TrendingUp />,
       color: 'bg-indigo-600',
     },
     {
       title: 'Multi-Hospital Integration',
       description: 'Seamlessly connect multiple hospital systems into a unified coordination platform.',
-      icon: <FaHeartbeat />,
+      icon: <HeartPulse />,
       color: 'bg-teal-600',
     },
   ];
@@ -60,12 +59,9 @@ const FeaturesGrid = ({ modal = false }) => {
       {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map((feature, i) => (
-          <motion.div
+          <div
             key={feature.title}
             className="group relative overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
           >
             {/* Card */}
             <div className="relative h-full bg-white rounded-2xl p-6 border border-gray-200 shadow-lg flex flex-col hover:shadow-xl transition-shadow">
@@ -88,7 +84,7 @@ const FeaturesGrid = ({ modal = false }) => {
               {/* Bottom line animation */}
               <div className={`mt-4 h-1 ${feature.color} rounded-full w-0 group-hover:w-full transition-all duration-300`} />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
@@ -109,12 +105,9 @@ const FeaturesGrid = ({ modal = false }) => {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, i) => (
-            <motion.div
+            <div
               key={feature.title}
               className="group relative overflow-hidden"
-              initial={{ opacity: 0, y: 40 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               {/* Card */}
               <div className="relative h-full bg-white rounded-2xl p-8 border border-gray-200 shadow-lg flex flex-col hover:shadow-xl transition-shadow">
@@ -137,7 +130,7 @@ const FeaturesGrid = ({ modal = false }) => {
                 {/* Bottom line animation */}
                 <div className={`mt-6 h-1 ${feature.color} rounded-full w-0 group-hover:w-full transition-all duration-300`} />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 

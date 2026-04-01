@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { FaMapMarkerAlt, FaHeartbeat, FaCheckCircle, FaMicrophone, FaTimes, FaArrowLeft, FaCheck } from 'react-icons/fa';
+import { ArrowLeft, Check, CheckCircle, HeartPulse, MapPin, Mic, X } from 'lucide-react';
 import { createEmergencyRequest, getEmergencyStatus, uploadEmergencyMedia } from '../services/emergencyService';
 
 const EmergencySOSPage = ({ onClose }) => {
@@ -238,7 +237,7 @@ const EmergencySOSPage = ({ onClose }) => {
         className="fixed top-6 left-6 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 transition-colors flex items-center justify-center"
         title="Go back"
       >
-        <FaArrowLeft size={20} />
+        <ArrowLeft size={20} />
       </button>
 
       {/* Form Container */}
@@ -275,9 +274,7 @@ const SinglePageSOSForm = ({
   onSubmit,
 }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-2xl mx-auto"
     >
       {/* Red Header Banner */}
@@ -413,7 +410,7 @@ const SinglePageSOSForm = ({
                 </div>
                 {formData.emergencyType.includes(option.value) && (
                   <div className="bg-blue-500 rounded-full p-0.5">
-                    <FaCheck size={12} className="text-white" />
+                    <Check size={12} className="text-white" />
                   </div>
                 )}
               </button>
@@ -452,42 +449,36 @@ const SinglePageSOSForm = ({
         </div>
 
         {/* Use Current Location Button */}
-        <motion.button
+        <button
           onClick={detectLocation}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           className="w-full py-2 px-4 border-2 border-red-600 text-red-600 rounded-lg font-semibold text-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
         >
-          <FaMapMarkerAlt size={16} />
+          <MapPin size={16} />
           Use Current Location
-        </motion.button>
+        </button>
 
         {locationDetected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div
             className="bg-green-50 border border-green-300 rounded-lg p-2 text-center"
           >
             <p className="text-green-700 font-medium text-xs">Location Detected Successfully</p>
-          </motion.div>
+          </div>
         )}
 
         {/* Send SOS Button */}
-        <motion.button
+        <button
           onClick={onSubmit}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-bold text-base transition-all"
         >
           SEND EMERGENCY SOS
-        </motion.button>
+        </button>
 
         {/* Footer Message */}
         <div className="pt-2 text-center border-t border-gray-200">
           <p className="text-gray-600 text-xs">Your request will be sent to nearby hospitals and ambulance services.</p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -499,43 +490,35 @@ const SearchingDashboard = ({ status, requestError }) => {
     : 'Your emergency has been received. Connecting you with the nearest hospitals.';
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+    <div
       className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex flex-col items-center justify-center px-4"
     >
       <div className="text-center">
-        <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+        <div
           className="mb-8"
         >
-          <FaHeartbeat className="text-6xl text-red-500 mx-auto" />
-        </motion.div>
+          <HeartPulse className="text-6xl text-red-500 mx-auto" />
+        </div>
 
         <h1 className="text-4xl font-bold text-white mb-4">{heading}</h1>
         <p className="text-gray-300 text-lg mb-8">{subheading}</p>
 
         {/* Radar Animation */}
-        <motion.div
+        <div
           className="relative w-48 h-48 mx-auto mb-8"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
         >
           <div className="absolute inset-0 border-4 border-blue-500 rounded-full opacity-20" />
           <div className="absolute inset-4 border-4 border-blue-400 rounded-full opacity-40" />
           <div className="absolute inset-8 border-4 border-blue-300 rounded-full opacity-60" />
-          <motion.div
+          <div
             className="absolute inset-16 bg-red-600 rounded-full"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
           />
-        </motion.div>
+        </div>
 
         <p className="text-gray-400">Please stay calm and ensure your location is correct.</p>
         {requestError ? <p className="text-red-300 mt-4">{requestError}</p> : null}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -635,33 +618,26 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
         onClick={onClose}
         className="fixed top-6 right-6 z-50 bg-red-600 hover:bg-red-700 text-white rounded-full p-3 transition-colors"
       >
-        <FaTimes size={24} />
+        <X size={24} />
       </button>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Success Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className="text-center mb-12"
         >
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
+          <div
             className="mb-4"
           >
-            <FaCheckCircle className="text-7xl text-green-500 mx-auto" />
-          </motion.div>
+            <CheckCircle className="text-7xl text-green-500 mx-auto" />
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Emergency Request Received!</h1>
           <p className="text-gray-300 text-lg">Hospitals in your area are responding immediately</p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {/* Hospital Response Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
+          <div
             className="lg:col-span-2 bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl"
           >
             <h2 className="text-2xl font-bold text-white mb-6">Hospital Found</h2>
@@ -698,46 +674,35 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
                 </div>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
+              <div
                 className="bg-red-600/10 border-2 border-red-600 rounded-lg p-4 text-center"
               >
                 <p className="text-white text-lg font-bold mb-2">Response Status</p>
                 <p className="text-red-300 text-2xl font-bold">
                   {etaMinutes > 0 ? `ETA: ${etaMinutes} minutes` : (hasTrackableAmbulanceLocation ? 'Ambulance route live' : 'Dispatch in progress')}
                 </p>
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Timeline Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
+          <div
             className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl"
           >
             <h3 className="text-xl font-bold text-white mb-6">Progress</h3>
             <div className="space-y-4">
               {timelineSteps.map((step, idx) => (
-                <motion.div
+                <div
                   key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.5 + 1 }}
                   className="flex items-center gap-3"
                 >
-                  <motion.div
+                  <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
                       step.completed ? 'bg-green-600 text-white' : 'bg-slate-600 text-gray-400'
                     }`}
-                    animate={step.completed ? { scale: [1, 1.1, 1] } : {}}
-                    transition={{ duration: 0.5, repeat: Infinity }}
                   >
-                    {step.completed ? <FaCheckCircle /> : (idx + 1)}
-                  </motion.div>
+                    {step.completed ? <CheckCircle /> : (idx + 1)}
+                  </div>
                   <div>
                     <p className={`font-medium ${step.completed ? 'text-white' : 'text-gray-400'}`}>
                       {step.label}
@@ -745,17 +710,14 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
                     {!step.completed && idx === 2 ? <p className="text-xs text-amber-300">Waiting for confirmed unit assignment</p> : null}
                     {!step.completed && idx === 3 ? <p className="text-xs text-amber-300">GPS lock pending from ambulance device</p> : null}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Live Map */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2 }}
+        <div
           className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl mb-12"
         >
           <h3 className="text-2xl font-bold text-white mb-4">Ambulance Location</h3>
@@ -765,13 +727,10 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
             address={request?.location?.address || formData.address}
             hasTrackableAmbulanceLocation={hasTrackableAmbulanceLocation}
           />
-        </motion.div>
+        </div>
 
         {/* Patient Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
+        <div
           className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl"
         >
           <h3 className="text-2xl font-bold text-white mb-6">Your Information</h3>
@@ -791,7 +750,7 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
                 <div className="flex flex-wrap gap-2">
                   {formData.emergencyType.map((type) => (
                     <span key={type} className="bg-blue-500 bg-opacity-20 text-blue-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 border border-blue-400">
-                      <FaCheck size={10} />
+                      <Check size={10} />
                       {type.replace(/_/g, ' ').toUpperCase()}
                     </span>
                   ))}
@@ -829,7 +788,7 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
                   aria-label="Voice input"
                   className={`absolute right-2 top-2 rounded-full p-2 transition ${isMediaNoteListening ? 'bg-red-600 text-white' : 'bg-slate-600 text-gray-100 hover:bg-slate-500'}`}
                 >
-                  <FaMicrophone size={14} />
+                  <Mic size={14} />
                 </button>
               </div>
               <button type="submit" className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold" disabled={isUploadingMedia}>
@@ -846,13 +805,11 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
               </div>
             ) : null}
           </div>
-        </motion.div>
+        </div>
 
         {/* Action Buttons */}
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             disabled={!ambulanceContact}
             onClick={() => {
               if (ambulanceContact) {
@@ -862,15 +819,13 @@ const ResponseDashboard = ({ formData, request, onClose }) => {
             className="px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-lg font-bold transition-colors"
           >
             {ambulanceContact ? 'Call Ambulance' : 'Contact Syncing'}
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          </button>
+          <button
             onClick={onClose}
             className="px-8 py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold transition-colors"
           >
             Close
-          </motion.button>
+          </button>
         </div>
       </div>
     </div>

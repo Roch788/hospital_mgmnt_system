@@ -9,6 +9,7 @@ import { adminRouter } from "./adminRoutes.js";
 import { ambulanceRouter } from "./ambulanceRoutes.js";
 import { patientRouter } from "./patientRoutes.js";
 import { requestRouter } from "./requestRoutes.js";
+import { opdPublicRouter } from "./opdPublicRoutes.js";
 
 export const apiRouter = Router();
 
@@ -21,4 +22,5 @@ apiRouter.use("/hospital", hospitalRouter);
 apiRouter.use("/operations", operationsRouter);
 apiRouter.use("/admin", adminRouter);
 apiRouter.use("/ambulance", ambulanceRouter);
+apiRouter.use("/opd", opdPublicRouter);
 apiRouter.use(realtimeRouter);

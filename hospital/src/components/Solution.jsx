@@ -1,5 +1,4 @@
-import { FaArrowRight } from 'react-icons/fa';
-
+import { ArrowRight } from 'lucide-react';
 const steps = [
   'Emergency Reported',
   'AI Analyzes Situation',
@@ -21,7 +20,7 @@ const Solution = () => (
             </div>
             <div className="ml-4 text-gray-700 font-inter">{step}</div>
             {index < steps.length - 1 && (
-              <FaArrowRight className="ml-4 text-gray-400" />
+              <ArrowRight className="ml-4 text-gray-400" />
             )}
           </div>
         ))}

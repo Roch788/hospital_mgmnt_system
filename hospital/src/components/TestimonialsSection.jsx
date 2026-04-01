@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
-
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 const TestimonialsSection = () => {
   const testimonials = [
     {
@@ -77,7 +76,7 @@ const TestimonialsSection = () => {
                     {/* Rating */}
                     <div className="flex gap-1">
                       {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <FaStar key={i} className="text-yellow-400" size={18} />
+                        <Star key={i} className="text-yellow-400" size={18} />
                       ))}
                     </div>
 
@@ -107,7 +106,7 @@ const TestimonialsSection = () => {
               onClick={goToPrevious}
               className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors shadow-lg"
             >
-              <FaChevronLeft size={20} />
+              <ChevronLeft size={20} />
             </button>
 
             {/* Dots Indicator */}
@@ -127,7 +126,7 @@ const TestimonialsSection = () => {
               onClick={goToNext}
               className="p-3 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors shadow-lg"
             >
-              <FaChevronRight size={20} />
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>

@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
-
+import { MapPin, Search } from 'lucide-react';
 const SmartSearchSection = () => {
   const [filters, setFilters] = useState({
     searchQuery: '',
@@ -52,11 +50,7 @@ const SmartSearchSection = () => {
     <section className="py-20 px-4 bg-white relative overflow-hidden">
       <div className="container mx-auto">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+        <div
           className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold font-poppins mb-4 text-gray-900">
@@ -65,21 +59,17 @@ const SmartSearchSection = () => {
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             Find ICU beds, ventilators, ambulances, or specialists in real-time across our network
           </p>
-        </motion.div>
+        </div>
 
         {/* Search form */}
-        <motion.form
+        <form
           onSubmit={handleSearch}
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
           className="max-w-4xl mx-auto mb-12 p-8 glass-card rounded-2xl border border-blue-200/50"
         >
           {/* Main search input */}
           <div className="mb-6">
             <div className="relative">
-              <FaSearch className="absolute left-4 top-4 text-blue-500 text-xl" />
+              <Search className="absolute left-4 top-4 text-blue-500 text-xl" />
               <input
                 type="text"
                 placeholder="Search ICU beds, ventilators, ambulances, or specialists..."
@@ -137,31 +127,24 @@ const SmartSearchSection = () => {
           </div>
 
           {/* Search button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             type="submit"
             className="w-full py-4 gradient-blue-cyan text-white rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
           >
-            <FaSearch /> Find Healthcare Resources
-          </motion.button>
-        </motion.form>
+            <Search /> Find Healthcare Resources
+          </button>
+        </form>
 
         {/* Results */}
         {showResults && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div
             className="max-w-4xl mx-auto space-y-4"
           >
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Available Resources ({mockResults.length})</h3>
 
             {mockResults.map((result, idx) => (
-              <motion.div
+              <div
                 key={result.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
                 className={`p-6 glass-card rounded-xl border-2 ${
                   result.available
                     ? 'border-green-200 bg-green-50/50'
@@ -174,7 +157,7 @@ const SmartSearchSection = () => {
                       🏥 {result.name}
                     </h4>
                     <p className="text-gray-600 flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-blue-500" />
+                      <MapPin className="text-blue-500" />
                       Distance: {result.distance} km
                     </p>
                   </div>
@@ -195,25 +178,21 @@ const SmartSearchSection = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       className="px-4 py-2 gradient-blue-cyan text-white rounded-lg font-semibold"
                     >
                       Request Bed
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    </button>
+                    <button
                       className="px-4 py-2 border-2 border-blue-500 text-blue-600 rounded-lg font-semibold hover:bg-blue-50"
                     >
                       View Hospital
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

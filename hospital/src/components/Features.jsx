@@ -1,12 +1,11 @@
-import { FaHospital, FaMapMarkedAlt, FaBed, FaHeartbeat, FaChartLine, FaRobot } from 'react-icons/fa';
-
+import { Bed, Bot, HeartPulse, Hospital, Map, TrendingUp } from 'lucide-react';
 const features = [
-  { title: 'Live Hospital Map', icon: <FaMapMarkedAlt /> },
-  { title: 'Ambulance Tracking', icon: <FaHospital /> },
-  { title: 'ICU Bed Availability', icon: <FaBed /> },
-  { title: 'Emergency SOS', icon: <FaHeartbeat /> },
-  { title: 'Healthcare Analytics', icon: <FaChartLine /> },
-  { title: 'AI Medical Assistant', icon: <FaRobot /> },
+  { title: 'Live Hospital Map', icon: <Map /> },
+  { title: 'Ambulance Tracking', icon: <Hospital /> },
+  { title: 'ICU Bed Availability', icon: <Bed /> },
+  { title: 'Emergency SOS', icon: <HeartPulse /> },
+  { title: 'Healthcare Analytics', icon: <TrendingUp /> },
+  { title: 'AI Medical Assistant', icon: <Bot /> },
 ];
 
 const Features = () => (

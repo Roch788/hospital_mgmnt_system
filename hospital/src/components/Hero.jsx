@@ -1,5 +1,4 @@
-import { FaCheckCircle } from 'react-icons/fa';
-
+import { Check, CheckCircle } from 'lucide-react';
 const Hero = () => (
   <section className="bg-white py-20" id="home">
     <div className="container mx-auto px-4 flex flex-col-reverse md:flex-row items-center">
@@ -27,7 +26,7 @@ const Hero = () => (
             'Smart emergency recommendations',
           ].map((item) => (
             <li key={item} className="flex items-center">
-              <FaCheckCircle className="text-green-500 mr-2" /> {item}
+              <CheckCircle className="text-green-500 mr-2" /> {item}
             </li>
           ))}
         </ul>
